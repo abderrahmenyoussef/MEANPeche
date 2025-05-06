@@ -1,1 +1,59 @@
-<p>gestion-article works!</p>
+<div class="container">
+  <h2 class="my-4">Gestion des Articles de Pêche</h2>
+
+  <div class="mb-4">
+    <button class="btn btn-success">Ajouter un article</button>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p>Chargement des articles...</p>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && articles.length === 0" class="alert alert-info">
+    Aucun article disponible.
+  </div>
+
+  <div *ngIf="!loading && !error && articles.length > 0" class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Prix (€)</th>
+          <th>Stock</th>
+          <th>Catégorie</th>
+          <th>Image</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let article of articles">
+          <td>{{ article.iid }}</td>
+          <td>{{ article.nom }}</td>
+          <td>{{ article.description | slice:0:50 }}...</td>
+          <td>{{ article.prix | currency:'EUR' }}</td>
+          <td>{{ article.stock }}</td>
+          <td>{{ article.categorie }}</td>
+          <td>
+            <img [src]="article.images" alt="{{ article.nom }}" class="img-thumbnail" style="max-width: 100px;">
+          </td>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-info me-1">Voir</button>
+              <button class="btn btn-sm btn-warning me-1">Modifier</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteArticle(article.id)">Supprimer</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
