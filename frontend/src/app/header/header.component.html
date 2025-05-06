@@ -28,12 +28,13 @@
         </li>
       </ul>
 
-      <div class="search-box">
-        <input type="text" class="form-control" placeholder="Rechercher un article...">
-        <button class="btn search-btn">
+      <form class="search-box" (submit)="onSearchSubmit($event)">
+        <input type="text" class="form-control" placeholder="Rechercher un article..."
+               [(ngModel)]="searchTerm" name="searchTerm" (input)="onSearchInput()">
+        <button type="submit" class="btn search-btn">
           <i class="bi bi-search"></i>
         </button>
-      </div>
+      </form>
 
       <div class="nav-icons">
         <a href="#" class="nav-icon">

@@ -5,35 +5,78 @@
     <div class="filter-section">
       <div class="filter-options">
         <div class="dropdown">
-          <button class="btn filter-btn dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn filter-btn dropdown-toggle" type="button" (click)="toggleFilters()" aria-expanded="false">
             <i class="bi bi-funnel"></i> Filtrer
           </button>
-          <ul class="dropdown-menu" aria-labelledby="filterDropdown">
-            <li><a class="dropdown-item" href="#">Cannes à pêche</a></li>
-            <li><a class="dropdown-item" href="#">Moulinets</a></li>
-            <li><a class="dropdown-item" href="#">Leurres</a></li>
-            <li><a class="dropdown-item" href="#">Accessoires</a></li>
-          </ul>
+          <div class="dropdown-menu filter-dropdown" [ngClass]="{'show': showFilters}">
+            <!-- Filtre par Catégorie -->
+            <div class="filter-group">
+              <h6 class="dropdown-header">Catégorie</h6>
+              <div class="filter-options-container">
+                <div class="form-check" *ngFor="let category of categories">
+                  <input class="form-check-input" type="radio" name="categoryFilter" [id]="'category-' + category"
+                         [value]="category" [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
+                  <label class="form-check-label" [for]="'category-' + category">
+                    {{ category }}
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filtre par Stock -->
+            <div class="dropdown-divider"></div>
+            <h6 class="dropdown-header">Disponibilité</h6>
+            <div class="filter-options-container">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="stockFilter" id="stock-all"
+                       value="tous" [(ngModel)]="stockFilter" (change)="applyFilters()">
+                <label class="form-check-label" for="stock-all">
+                  Tous les articles
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="stockFilter" id="stock-available"
+                       value="en-stock" [(ngModel)]="stockFilter" (change)="applyFilters()">
+                <label class="form-check-label" for="stock-available">
+                  En stock
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="stockFilter" id="stock-limited"
+                       value="rupture" [(ngModel)]="stockFilter" (change)="applyFilters()">
+                <label class="form-check-label" for="stock-limited">
+                  Rupture de stock
+                </label>
+              </div>
+            </div>
+
+            <div class="dropdown-divider"></div>
+            <button class="btn btn-sm btn-outline-secondary w-100" (click)="resetFilters()">
+              Réinitialiser les filtres
+            </button>
+          </div>
         </div>
 
         <div class="dropdown">
-          <button class="btn filter-btn dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn filter-btn dropdown-toggle" type="button" (click)="toggleSortOptions()" aria-expanded="false">
             <i class="bi bi-sort-down"></i> Trier
           </button>
-          <ul class="dropdown-menu" aria-labelledby="sortDropdown">
-            <li><a class="dropdown-item" href="#">Prix croissant</a></li>
-            <li><a class="dropdown-item" href="#">Prix décroissant</a></li>
-            <li><a class="dropdown-item" href="#">Nouveautés</a></li>
-            <li><a class="dropdown-item" href="#">Popularité</a></li>
+          <ul class="dropdown-menu" [ngClass]="{'show': showSortOptions}">
+            <li><a class="dropdown-item" href="javascript:void(0)" (click)="applySortOption('default')">Par défaut</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)" (click)="applySortOption('price-asc')">Prix croissant</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)" (click)="applySortOption('price-desc')">Prix décroissant</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)" (click)="applySortOption('name-asc')">Nom (A à Z)</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)" (click)="applySortOption('name-desc')">Nom (Z à A)</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0)" (click)="applySortOption('newest')">Nouveautés</a></li>
           </ul>
         </div>
       </div>
 
       <div class="view-options">
-        <button class="btn view-btn active" title="Vue grille">
+        <button class="btn view-btn" [class.active]="currentView === 'grid'" (click)="changeView('grid')" title="Vue grille">
           <i class="bi bi-grid-3x3-gap-fill"></i>
         </button>
-        <button class="btn view-btn" title="Vue liste">
+        <button class="btn view-btn" [class.active]="currentView === 'list'" (click)="changeView('list')" title="Vue liste">
           <i class="bi bi-list-ul"></i>
         </button>
       </div>
@@ -55,16 +98,19 @@
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="!loading && !error && articles.length === 0" class="empty-state">
+    <div *ngIf="!loading && !error && filteredArticles.length === 0" class="empty-state">
       <div class="empty-state-content">
         <i class="bi bi-inbox-fill"></i>
-        <h3>Aucun article disponible pour le moment</h3>
-        <p>Revenez bientôt pour découvrir notre nouvelle collection d'articles de pêche.</p>
+        <h3>Aucun article ne correspond à votre recherche</h3>
+        <p>Essayez de modifier vos critères de recherche ou consultez nos autres produits.</p>
+        <button class="btn btn-outline-primary mt-3" (click)="resetFilters()">
+          Réinitialiser les filtres
+        </button>
       </div>
     </div>
 
-    <!-- Products Grid - Modification pour utiliser displayedArticles -->
-    <div id="products" *ngIf="!loading && !error && articles.length > 0" class="product-grid">
+    <!-- Products Grid View -->
+    <div id="products" *ngIf="!loading && !error && filteredArticles.length > 0 && currentView === 'grid'" class="product-grid">
       <div class="product-card" *ngFor="let article of displayedArticles">
         <div class="product-badge" *ngIf="article.stock <= 5 && article.stock > 0">Dernières pièces</div>
         <div class="product-badge sold-out" *ngIf="article.stock <= 0">Rupture de stock</div>
@@ -89,7 +135,7 @@
           <h3 class="product-title">{{ article.nom }}</h3>
           <div class="product-description">{{ article.description | slice:0:65 }}...</div>
           <div class="product-bottom">
-            <div class="product-price">{{ article.prix | currency:'EUR':'symbol':'1.2-2' }}</div>
+            <div class="product-price">{{ article.prix | tunisianCurrency }}</div>
             <div class="product-stock" [ngClass]="{'in-stock': article.stock > 5, 'low-stock': article.stock <= 5 && article.stock > 0, 'out-of-stock': article.stock <= 0}">
               <i class="bi" [ngClass]="{'bi-check-circle-fill': article.stock > 5, 'bi-exclamation-circle-fill': article.stock <= 5 && article.stock > 0, 'bi-x-circle-fill': article.stock <= 0}"></i>
               <span *ngIf="article.stock > 5">En stock</span>
@@ -101,8 +147,52 @@
       </div>
     </div>
 
-    <!-- Pagination - Implémentation des contrôles de pagination -->
-    <div *ngIf="!loading && !error && articles.length > 0" class="d-flex justify-content-center mt-4">
+    <!-- Products List View -->
+    <div id="products-list" *ngIf="!loading && !error && filteredArticles.length > 0 && currentView === 'list'" class="product-list">
+      <div class="product-list-item" *ngFor="let article of displayedArticles">
+        <div class="row align-items-center">
+          <div class="col-md-2">
+            <div class="product-list-image">
+              <img [src]="article.images" [alt]="article.nom" class="img-fluid">
+              <div class="product-badge list" *ngIf="article.stock <= 5 && article.stock > 0">Dernières pièces</div>
+              <div class="product-badge list sold-out" *ngIf="article.stock <= 0">Rupture de stock</div>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="product-list-info">
+              <div class="product-category">{{ article.categorie }}</div>
+              <h3 class="product-title">{{ article.nom }}</h3>
+              <div class="product-description">{{ article.description | slice:0:150 }}...</div>
+              <div class="product-stock mt-2" [ngClass]="{'in-stock': article.stock > 5, 'low-stock': article.stock <= 5 && article.stock > 0, 'out-of-stock': article.stock <= 0}">
+                <i class="bi" [ngClass]="{'bi-check-circle-fill': article.stock > 5, 'bi-exclamation-circle-fill': article.stock <= 5 && article.stock > 0, 'bi-x-circle-fill': article.stock <= 0}"></i>
+                <span *ngIf="article.stock > 5">En stock</span>
+                <span *ngIf="article.stock <= 5 && article.stock > 0">Stock limité ({{ article.stock }} restants)</span>
+                <span *ngIf="article.stock <= 0">Indisponible</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="product-list-actions">
+              <div class="product-price mb-3">{{ article.prix | tunisianCurrency }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" title="Ajouter aux favoris" (click)="addToFavorites(article)">
+                  <i class="bi bi-heart"></i>
+                </button>
+                <button class="btn btn-sm btn-primary" title="Voir les détails" [routerLink]="['/article', article.id]">
+                  <i class="bi bi-eye me-1"></i> Voir
+                </button>
+                <button class="btn btn-sm btn-success" title="Ajouter au panier" [disabled]="article.stock <= 0" (click)="addToCart(article)">
+                  <i class="bi bi-cart-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && !error && filteredArticles.length > 0" class="d-flex justify-content-center mt-4">
       <nav aria-label="Pagination des produits">
         <ul class="pagination">
           <li class="page-item" [class.disabled]="currentPage === 1">
@@ -130,7 +220,7 @@
     </div>
 
     <!-- Infos de pagination -->
-    <div *ngIf="!loading && !error && articles.length > 0" class="pagination-info text-center mt-2">
+    <div *ngIf="!loading && !error && filteredArticles.length > 0" class="pagination-info text-center mt-2">
       <small>Page {{ currentPage }} sur {{ totalPages }} | {{ totalArticles }} articles au total</small>
     </div>
   </div>
