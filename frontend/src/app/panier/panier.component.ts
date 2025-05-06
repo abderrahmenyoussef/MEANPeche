@@ -16,6 +16,8 @@ import Swal from 'sweetalert2';
 export class PanierComponent implements OnInit {
   articles: any[] = [];
   montantTotal = 0;
+  fraisLivraison = 8; // Frais de livraison fixes à 8 DT
+  montantFinal = 0; // Montant incluant les frais de livraison
   private isBrowser: boolean;
 
   constructor(
@@ -30,7 +32,13 @@ export class PanierComponent implements OnInit {
     this.panierService.panier$.subscribe(articles => {
       this.articles = articles;
       this.montantTotal = this.panierService.getMontantTotal();
+      this.calculerMontantFinal();
     });
+  }
+
+  // Calculer le montant final (sous-total + frais de livraison)
+  calculerMontantFinal(): void {
+    this.montantFinal = this.montantTotal + this.fraisLivraison;
   }
 
   // Supprimer un article du panier
@@ -44,6 +52,15 @@ export class PanierComponent implements OnInit {
       this.supprimerArticle(id);
     } else {
       this.panierService.modifierQuantite(id, quantite);
+    }
+  }
+
+  // Gérer l'événement blur de l'input quantité
+  handleQuantiteBlur(event: Event, articleId: string): void {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement) {
+      const valeur = parseInt(inputElement.value) || 1;
+      this.changerQuantite(articleId, valeur);
     }
   }
 

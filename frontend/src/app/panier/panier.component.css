@@ -6,17 +6,63 @@
   border-radius: 4px;
 }
 
+/* Nouveau style pour le contrôle de quantité */
 .quantity-control {
-  max-width: 110px;
+  display: flex;
+  align-items: center;
+  max-width: 120px;
   margin: 0 auto;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .quantity-control input {
-  max-width: 40px;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-right: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+
+.quantity-control input.no-arrows {
+  -moz-appearance: textfield !important; /* Firefox */
+  -webkit-appearance: none !important; /* Safari and Chrome */
+  appearance: none !important;
+  background-color: white;
+  cursor: default;
+}
+
+.quantity-control input.no-arrows::-webkit-outer-spin-button,
+.quantity-control input.no-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  margin: 0;
+  display: none;
+}
+
+.quantity-control .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #ced4da;
+  background-color: #f8f9fa;
+  transition: all 0.2s;
+}
+
+.quantity-control .btn:hover {
+  background-color: #e9ecef;
 }
 
 .table th, .table td {
   padding: 1rem;
+  vertical-align: middle;
 }
 
 .card {
@@ -32,4 +78,14 @@
 
 .btn-link {
   text-decoration: none;
+}
+
+.btn-outline-secondary {
+  border-color: #ced4da;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+  border-color: #ced4da;
+  color: #0a466d;
 }

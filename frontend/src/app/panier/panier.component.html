@@ -52,15 +52,15 @@
                   </td>
                   <td>{{article.prix | tunisianCurrency}}</td>
                   <td class="text-center">
-                    <div class="input-group input-group-sm quantity-control">
-                      <button class="btn btn-outline-secondary" type="button"
+                    <div class="quantity-control">
+                      <button class="btn" type="button"
                               (click)="changerQuantite(article.id, article.quantite - 1)">
                         <i class="bi bi-dash"></i>
                       </button>
-                      <input type="number" class="form-control text-center"
-                             [(ngModel)]="article.quantite" min="1"
-                             (change)="changerQuantite(article.id, article.quantite)">
-                      <button class="btn btn-outline-secondary" type="button"
+                      <input type="number" class="no-arrows"
+                             [ngModel]="article.quantite" (blur)="handleQuantiteBlur($event, article.id)"
+                             readonly>
+                      <button class="btn" type="button"
                               (click)="changerQuantite(article.id, article.quantite + 1)">
                         <i class="bi bi-plus"></i>
                       </button>
@@ -100,12 +100,12 @@
           </div>
           <div class="d-flex justify-content-between mb-3">
             <span>Frais de livraison</span>
-            <span>À calculer</span>
+            <span>{{fraisLivraison | tunisianCurrency}}</span>
           </div>
           <hr>
           <div class="d-flex justify-content-between mb-4">
             <strong>Total</strong>
-            <strong>{{montantTotal | tunisianCurrency}}</strong>
+            <strong>{{montantFinal | tunisianCurrency}}</strong>
           </div>
           <button class="btn btn-primary w-100" (click)="commander()">
             Passer la commande
