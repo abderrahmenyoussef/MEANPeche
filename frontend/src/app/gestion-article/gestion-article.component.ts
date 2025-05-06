@@ -13,9 +13,16 @@ import { RouterModule } from '@angular/router';
 })
 export class GestionArticleComponent implements OnInit {
   articles: any[] = [];
+  displayedArticles: any[] = []; // Articles affichés sur la page courante
   loading: boolean = true;
   error: string = '';
   currentView: string = 'grid'; // Pour basculer entre vue grille et liste
+
+  // Variables de pagination
+  currentPage: number = 1;
+  pageSize: number = 6; // 6 articles par page comme demandé
+  totalArticles: number = 0;
+  totalPages: number = 0;
 
   constructor(private articleService: ArticleService) { }
 
@@ -29,6 +36,10 @@ export class GestionArticleComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.articles = data;
+          this.totalArticles = this.articles.length;
+          this.totalPages = Math.ceil(this.totalArticles / this.pageSize);
+          this.currentPage = 1;
+          this.getPaginatedArticles();
           this.loading = false;
         },
         error: (err) => {
@@ -39,12 +50,48 @@ export class GestionArticleComponent implements OnInit {
       });
   }
 
+  // Méthode pour obtenir les articles de la page courante
+  getPaginatedArticles(): void {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.displayedArticles = this.articles.slice(startIndex, endIndex);
+  }
+
+  // Méthodes de navigation de pagination
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.getPaginatedArticles();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.getPaginatedArticles();
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.getPaginatedArticles();
+    }
+  }
+
   deleteArticle(id: string): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
       this.articleService.deleteArticle(id)
         .subscribe({
           next: () => {
             this.articles = this.articles.filter(article => article.id !== id);
+            this.totalArticles = this.articles.length;
+            this.totalPages = Math.ceil(this.totalArticles / this.pageSize);
+            // S'assurer que la page actuelle est toujours valide
+            if (this.currentPage > this.totalPages && this.totalPages > 0) {
+              this.currentPage = this.totalPages;
+            }
+            this.getPaginatedArticles();
           },
           error: (err) => {
             console.error('Erreur lors de la suppression de l\'article:', err);

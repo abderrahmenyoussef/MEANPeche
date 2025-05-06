@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
 import { GestionArticleComponent } from './gestion-article/gestion-article.component';
+import { HomeComponent } from './home/home.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'liste', pathMatch: 'full' },
+  { path: '', component: HomeComponent, pathMatch: 'full' },
   { path: 'liste', component: GestionArticleComponent },
-  { path: '**', redirectTo: 'liste' }
+  { path: '**', redirectTo: '' }
 ];
