@@ -2,11 +2,13 @@ import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { ArticleService } from '../services/article.service';
+import { PanierService } from '../services/panier.service';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TunisianCurrencyPipe } from '../pipes/tunisian-currency.pipe';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-gestion-article',
@@ -51,6 +53,7 @@ export class GestionArticleComponent implements OnInit, OnDestroy {
 
   constructor(
     private articleService: ArticleService,
+    private panierService: PanierService,
     private route: ActivatedRoute
   ) { }
 
@@ -269,9 +272,21 @@ export class GestionArticleComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Fonction pour ajouter au panier (à implémenter ultérieurement)
+  // Fonction pour ajouter au panier
   addToCart(article: any): void {
-    console.log(`Article ${article.nom} ajouté au panier`);
+    // Ajouter l'article au panier avec la quantité par défaut à 1
+    this.panierService.ajouterArticle({...article, quantite: 1});
+
+    // Afficher une notification avec SweetAlert2
+    Swal.fire({
+      position: 'top-end',
+      icon: 'success',
+      title: 'Article ajouté au panier!',
+      text: `${article.nom} a été ajouté à votre panier`,
+      showConfirmButton: false,
+      timer: 1500,
+      toast: true
+    });
   }
 
   // Fonction pour ajouter aux favoris (à implémenter ultérieurement)
