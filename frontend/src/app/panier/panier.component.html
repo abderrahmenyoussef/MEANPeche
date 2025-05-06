@@ -114,4 +114,59 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal pour le formulaire de commande -->
+  <div class="modal fade" id="commandeModal" tabindex="-1" aria-labelledby="commandeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="commandeModalLabel">Finaliser votre commande</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="commandeForm">
+            <div class="mb-3">
+              <label for="nom" class="form-label">Nom</label>
+              <input type="text" class="form-control" id="nom" formControlName="nom">
+              <div *ngIf="commandeForm.get('nom')?.invalid && commandeForm.get('nom')?.touched" class="text-danger small">
+                Le nom est requis
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="prenom" class="form-label">Prénom</label>
+              <input type="text" class="form-control" id="prenom" formControlName="prenom">
+              <div *ngIf="commandeForm.get('prenom')?.invalid && commandeForm.get('prenom')?.touched" class="text-danger small">
+                Le prénom est requis
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="adresse" class="form-label">Adresse de livraison</label>
+              <textarea class="form-control" id="adresse" rows="2" formControlName="adresse"></textarea>
+              <div *ngIf="commandeForm.get('adresse')?.invalid && commandeForm.get('adresse')?.touched" class="text-danger small">
+                L'adresse est requise
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="telephone" class="form-label">Numéro de téléphone</label>
+              <input type="tel" class="form-control" id="telephone" formControlName="telephone">
+              <div *ngIf="commandeForm.get('telephone')?.invalid && commandeForm.get('telephone')?.touched" class="text-danger small">
+                Un numéro de téléphone valide est requis
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="carteBancaire" class="form-label">Numéro de carte bancaire</label>
+              <input type="text" class="form-control" id="carteBancaire" formControlName="carteBancaire">
+              <div *ngIf="commandeForm.get('carteBancaire')?.invalid && commandeForm.get('carteBancaire')?.touched" class="text-danger small">
+                Un numéro de carte bancaire valide est requis
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" [disabled]="commandeForm.invalid" (click)="confirmerCommande()">Confirmer la commande</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
