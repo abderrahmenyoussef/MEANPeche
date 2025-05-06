@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { ArticleService } from '../services/article.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-gestion-article',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule, RouterModule],
   templateUrl: './gestion-article.component.html',
   styleUrl: './gestion-article.component.css'
 })
@@ -14,6 +15,7 @@ export class GestionArticleComponent implements OnInit {
   articles: any[] = [];
   loading: boolean = true;
   error: string = '';
+  currentView: string = 'grid'; // Pour basculer entre vue grille et liste
 
   constructor(private articleService: ArticleService) { }
 
@@ -50,5 +52,23 @@ export class GestionArticleComponent implements OnInit {
           }
         });
     }
+  }
+
+  // Pour la nouvelle interface utilisateur
+  changeView(view: string): void {
+    this.currentView = view;
+  }
+
+  // Fonction pour ajouter au panier (à implémenter ultérieurement)
+  addToCart(article: any): void {
+    // À implémenter plus tard avec un service de panier
+    console.log(`Article ${article.nom} ajouté au panier`);
+    // Ici vous pourriez déclencher une notification ou animation
+  }
+
+  // Fonction pour ajouter aux favoris (à implémenter ultérieurement)
+  addToFavorites(article: any): void {
+    // À implémenter plus tard avec un service de favoris
+    console.log(`Article ${article.nom} ajouté aux favoris`);
   }
 }
