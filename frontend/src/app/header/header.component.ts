@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { PanierService } from '../services/panier.service';
 
 @Component({
   selector: 'app-header',
@@ -12,11 +13,13 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   searchSubject = new Subject<string>();
+  nombreArticles: number = 0;
+  private panierSubscription!: Subscription;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private panierService: PanierService) {}
 
   ngOnInit(): void {
     // Configure la recherche dynamique avec un délai de 300ms pour éviter trop d'appels
@@ -26,6 +29,23 @@ export class HeaderComponent implements OnInit {
     ).subscribe(term => {
       this.performSearch(term);
     });
+
+    // S'abonner aux changements du panier pour mettre à jour le compteur
+    this.panierSubscription = this.panierService.panier$.subscribe(() => {
+      this.nombreArticles = this.panierService.getNombreArticles();
+      console.log('Nombre d\'articles mis à jour:', this.nombreArticles);
+    });
+
+    // Initialisation du compteur au démarrage
+    this.nombreArticles = this.panierService.getNombreArticles();
+    console.log('Nombre d\'articles initial:', this.nombreArticles);
+  }
+
+  ngOnDestroy(): void {
+    // Se désabonner pour éviter les fuites mémoire
+    if (this.panierSubscription) {
+      this.panierSubscription.unsubscribe();
+    }
   }
 
   // Appelé à chaque frappe dans la barre de recherche

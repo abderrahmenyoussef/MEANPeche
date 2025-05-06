@@ -1,0 +1,35 @@
+.cart-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.quantity-control {
+  max-width: 110px;
+  margin: 0 auto;
+}
+
+.quantity-control input {
+  max-width: 40px;
+}
+
+.table th, .table td {
+  padding: 1rem;
+}
+
+.card {
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.btn-link {
+  text-decoration: none;
+}

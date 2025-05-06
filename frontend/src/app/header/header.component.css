@@ -107,18 +107,22 @@
 
 .cart-count {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  background-color: var(--accent-color);
+  top: -8px;
+  right: -8px;
+  background-color: #ff3b30; /* Rouge plus vif */
   color: white;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: bold;
-  width: 18px;
-  height: 18px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Ajouter une ombre */
+  border: 1px solid white; /* Ajouter une bordure */
+  z-index: 10;
 }
 
 /* Categories bar */

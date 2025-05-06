@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ArticleService } from '../services/article.service';
 import { TunisianCurrencyPipe } from '../pipes/tunisian-currency.pipe';
 import { FormsModule } from '@angular/forms';
+import { PanierService } from '../services/panier.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-product-detail',
@@ -18,11 +20,16 @@ export class ProductDetailComponent implements OnInit {
   error: string = '';
   quantity: number = 1;
   relatedProducts: any[] = [];
+  private isBrowser: boolean;
 
   constructor(
     private route: ActivatedRoute,
-    private articleService: ArticleService
-  ) {}
+    private articleService: ArticleService,
+    private panierService: PanierService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit(): void {
     // Récupérer l'ID de l'article depuis l'URL
@@ -59,8 +66,29 @@ export class ProductDetailComponent implements OnInit {
   addToCart(article: any): void {
     if (this.quantity < 1) this.quantity = 1;
     if (article.stock > 0 && this.quantity <= article.stock) {
-      console.log(`Article ${article.nom} ajouté au panier (Quantité: ${this.quantity})`);
-      // Ici, vous implémenterez la logique de panier réelle plus tard
+      // Utiliser le service panier pour ajouter l'article
+      this.panierService.ajouterArticle(article, this.quantity);
+
+      // Afficher une notification avec SweetAlert2
+      if (this.isBrowser) {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        });
+
+        Toast.fire({
+          icon: 'success',
+          title: `${article.nom} ajouté au panier`,
+          text: `Quantité: ${this.quantity}`
+        });
+      }
     }
   }
 
