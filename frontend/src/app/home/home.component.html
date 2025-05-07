@@ -6,4 +6,37 @@
       <a routerLink="/liste" class="explore-btn">Explorer la collection</a>
     </div>
   </div>
+
+  <!-- Section Promotions -->
+  <div class="promotions-section">
+    <div class="section-header">
+      <h2>Promotions Exclusives</h2>
+      <p>Ne manquez pas nos offres spéciales sur une sélection d'articles</p>
+    </div>
+
+    <div *ngIf="loading" class="loading-container">
+      <p>Chargement des promotions en cours...</p>
+    </div>
+
+    <div class="promotions-container" *ngIf="!loading">
+      <div class="promo-card" *ngFor="let article of articlesEnPromo">
+        <div class="promo-badge">-{{article.pourcentagePromo}}%</div>
+        <div class="promo-image">
+          <img [src]="article.image || 'assets/images/banner.png'" [alt]="article.nom">
+        </div>
+        <div class="promo-details">
+          <h3>{{ article.nom }}</h3>
+          <div class="promo-price">
+            <span class="old-price">{{ article.prix | tunisianCurrency }}</span>
+            <span class="new-price">{{ article.prixPromo | tunisianCurrency }}</span>
+          </div>
+          <button class="promo-btn" (click)="voirDetails(article._id)">Voir détails</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="see-all-container">
+      <a routerLink="/promotions" class="see-all-btn">Voir toutes les promotions</a>
+    </div>
+  </div>
 </div>

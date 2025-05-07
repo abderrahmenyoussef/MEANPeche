@@ -1,0 +1,44 @@
+<div class="promo-container">
+  <div class="promo-header">
+    <h1>Promotions du moment</h1>
+    <p class="promo-subtitle">Découvrez nos offres spéciales sur une sélection d'articles pour la pêche</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <p>Chargement des promotions en cours...</p>
+  </div>
+
+  <div *ngIf="error" class="error-container">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error" class="promo-articles-container">
+    <div *ngFor="let article of articlesEnPromotion" class="promo-article-card" (click)="voirDetails(article._id)">
+      <div class="promo-badge">-{{ article.pourcentagePromo }}%</div>
+      <div class="article-image">
+        <img [src]="article.image || 'assets/images/banner.png'" [alt]="article.nom">
+      </div>
+      <div class="article-details">
+        <h2>{{ article.nom }}</h2>
+        <p class="article-description">{{ article.description }}</p>
+        <div class="price-container">
+          <span class="old-price">{{ article.prix | tunisianCurrency }}</span>
+          <span class="promo-price">{{ article.prixPromo | tunisianCurrency }}</span>
+        </div>
+        <p class="stock-info">En stock: {{ article.stock }} unités</p>
+        <div class="action-buttons">
+          <button class="btn-panier" (click)="addToPanier(article, $event)">
+            <i class="bi bi-cart-plus"></i> Ajouter au panier
+          </button>
+          <button class="btn-favoris" [ngClass]="{'favoris-active': estFavori(article._id)}" (click)="addToFavoris(article, $event)">
+            <i class="bi" [ngClass]="estFavori(article._id) ? 'bi-heart-fill' : 'bi-heart'"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !error && articlesEnPromotion.length === 0" class="no-promos-container">
+    <p>Aucune promotion n'est disponible pour le moment.</p>
+  </div>
+</div>

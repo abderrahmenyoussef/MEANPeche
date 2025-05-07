@@ -1,0 +1,220 @@
+/* Styles spécifiques pour la page nouveautés */
+.nouveautes-header {
+  padding: 1rem 0;
+  background-image: linear-gradient(to right, rgba(10, 70, 109, 0.05), rgba(66, 180, 209, 0.1), rgba(10, 70, 109, 0.05));
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.nouveautes-header h1 {
+  color: var(--primary-color);
+  font-weight: 700;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.nouveautes-header .bi-star {
+  color: #ffdd00;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Correction pour assurer que la row se comporte correctement */
+.row-fix {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Styles des cartes de produit */
+.product-card {
+  transition: all 0.3s ease;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Container pour gérer le chargement des images */
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  z-index: 1;
+}
+
+.spinner-sm {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.product-img {
+  max-height: 200px;
+  object-fit: contain;
+  padding: 1rem;
+  transition: transform 0.3s ease;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  opacity: 0;
+}
+
+.product-img.loaded {
+  opacity: 1;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
+.product-link {
+  display: block;
+  width: 100%;
+}
+
+.card-title {
+  font-weight: 600;
+  color: var(--dark-color);
+}
+
+.card-text {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Badges et étiquettes */
+.product-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0.5rem 0.75rem;
+  font-weight: bold;
+  z-index: 2;
+  border-radius: 0 0 5px 0;
+}
+
+.favorite-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: white;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.favorite-icon:hover {
+  transform: scale(1.1);
+}
+
+.favorite-icon .bi {
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+/* Ruban "NOUVEAU" */
+.ribbon {
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  position: absolute;
+  z-index: 2;
+}
+
+.ribbon span {
+  position: absolute;
+  display: block;
+  width: 225px;
+  padding: 8px 0;
+  background-color: #ffdd00;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  color: #111;
+  font-weight: 700;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.ribbon-top-right {
+  top: -10px;
+  right: -10px;
+}
+
+.ribbon-top-right span {
+  left: -25px;
+  top: 30px;
+  transform: rotate(45deg);
+}
+
+/* Prix */
+.price-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.current-price {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+/* État vide */
+.empty-state {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state .bi {
+  color: #dee2e6;
+}
+
+/* Animation de chargement */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading-animation {
+  animation: pulse 1.5s infinite ease-in-out;
+}
