@@ -101,15 +101,14 @@
   transform: translateY(-2px);
 }
 
-.cart-icon {
+.cart-icon, .favoris-icon {
   position: relative;
 }
 
-.cart-count {
+.cart-count, .favoris-count {
   position: absolute;
   top: -8px;
   right: -8px;
-  background-color: #ff3b30; /* Rouge plus vif */
   color: white;
   font-size: 0.75rem;
   font-weight: bold;
@@ -123,6 +122,14 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Ajouter une ombre */
   border: 1px solid white; /* Ajouter une bordure */
   z-index: 10;
+}
+
+.cart-count {
+  background-color: #ff3b30; /* Rouge pour le panier */
+}
+
+.favoris-count {
+  background-color: #e74c3c; /* Rouge légèrement différent pour les favoris */
 }
 
 /* Categories bar */

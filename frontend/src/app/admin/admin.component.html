@@ -1,0 +1,151 @@
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Administration</h2>
+        <button class="btn btn-danger" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Se déconnecter
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messages de succès et d'erreur -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Gestion des articles -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h3 class="mb-0">Gestion des articles</h3>
+      <button class="btn btn-light" (click)="openNewArticleForm()" *ngIf="!showArticleForm">
+        <i class="bi bi-plus-circle"></i> Ajouter un article
+      </button>
+    </div>
+    <div class="card-body">
+      <!-- Formulaire d'ajout/édition d'article -->
+      <div *ngIf="showArticleForm" class="mb-4">
+        <h4 class="mb-3">{{ isEditMode ? 'Modifier' : 'Ajouter' }} un article</h4>
+        <form (ngSubmit)="saveArticle()">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="iid" class="form-label">ID Article</label>
+                <input type="text" class="form-control" id="iid" [(ngModel)]="currentArticle.iid" name="iid" required [disabled]="isEditMode">
+              </div>
+              <div class="mb-3">
+                <label for="nom" class="form-label">Nom</label>
+                <input type="text" class="form-control" id="nom" [(ngModel)]="currentArticle.nom" name="nom" required>
+              </div>
+              <div class="mb-3">
+                <label for="prix" class="form-label">Prix (TND)</label>
+                <input type="number" class="form-control" id="prix" [(ngModel)]="currentArticle.prix" name="prix" required min="0" step="0.001">
+              </div>
+              <div class="mb-3">
+                <label for="stock" class="form-label">Stock</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="stock"
+                  [(ngModel)]="currentArticle.stock"
+                  name="stock"
+                  [attr.min]="0"
+                  step="1">
+                <small class="form-text text-muted">Vous pouvez mettre 0 pour indiquer que l'article est en rupture de stock</small>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="categorie" class="form-label">Catégorie</label>
+                <select class="form-select" id="categorie" [(ngModel)]="currentArticle.categorie" name="categorie" required>
+                  <option value="" disabled>Sélectionner une catégorie</option>
+                  <option *ngFor="let categorie of categories" [value]="categorie">{{ categorie }}</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="images" class="form-label">URL de l'image</label>
+                <input type="text" class="form-control" id="images" [(ngModel)]="currentArticle.images" name="images" required>
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" [(ngModel)]="currentArticle.description" name="description" rows="4" required></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button type="button" class="btn btn-secondary me-2" (click)="cancelEdit()">Annuler</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+              <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              {{ isEditMode ? 'Mettre à jour' : 'Ajouter' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Liste des articles -->
+      <div *ngIf="!showArticleForm">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Prix</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoading">
+                <td colspan="7" class="text-center py-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="!isLoading && articles.length === 0">
+                <td colspan="7" class="text-center py-4">
+                  Aucun article trouvé
+                </td>
+              </tr>
+              <tr *ngFor="let article of articles">
+                <td>{{ article.iid }}</td>
+                <td>
+                  <img [src]="article.images" alt="{{ article.nom }}" class="img-thumbnail" style="max-height: 50px;">
+                </td>
+                <td>{{ article.nom }}</td>
+                <td>{{ article.categorie }}</td>
+                <td>{{ article.prix | tunisianCurrency }}</td>
+                <td>
+                  <span [ngClass]="article.stock > 0 ? 'text-success' : 'text-danger'">
+                    {{ article.stock }}
+                  </span>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-primary" (click)="openEditArticleForm(article)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteArticle(article.id!)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -327,6 +327,16 @@
   cursor: not-allowed;
 }
 
+.action-btn.favorite-active {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.action-btn.favorite-active:hover {
+  background-color: #c0392b;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
 .view-details {
   background-color: var(--primary-color);
   color: white;

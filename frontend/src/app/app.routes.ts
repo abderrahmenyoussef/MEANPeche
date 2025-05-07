@@ -3,11 +3,17 @@ import { GestionArticleComponent } from './gestion-article/gestion-article.compo
 import { HomeComponent } from './home/home.component';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
 import { PanierComponent } from './panier/panier.component';
+import { FavorisComponent } from './favoris/favoris.component';
+import { LoginComponent } from './login/login.component';
+import { AdminComponent } from './admin/admin.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' },
   { path: 'liste', component: GestionArticleComponent },
   { path: 'article/:id', component: ProductDetailComponent },
   { path: 'panier', component: PanierComponent },
+  { path: 'favoris', component: FavorisComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'admin', component: AdminComponent },
   { path: '**', redirectTo: '' }
 ];

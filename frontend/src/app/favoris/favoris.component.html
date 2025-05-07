@@ -1,0 +1,81 @@
+<div class="favoris-container">
+  <div class="container mt-4">
+    <h2 class="section-title mb-4">
+      <i class="bi bi-heart-fill me-2"></i> Mes Articles Favoris
+    </h2>
+
+    <!-- État vide -->
+    <div *ngIf="articles.length === 0" class="empty-state">
+      <div class="empty-state-content">
+        <i class="bi bi-heart"></i>
+        <h3>Vous n'avez pas encore d'articles favoris</h3>
+        <p>Explorez notre catalogue et ajoutez des articles à vos favoris en cliquant sur l'icône de cœur.</p>
+        <a routerLink="/liste" class="btn btn-outline-primary mt-3">
+          Explorer le catalogue
+        </a>
+      </div>
+    </div>
+
+    <!-- Liste des articles favoris -->
+    <div *ngIf="articles.length > 0" class="row">
+      <div class="col-md-12">
+        <div class="card mb-4">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover favoris-table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Produit</th>
+                    <th>Prix</th>
+                    <th>Disponibilité</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let article of articles">
+                    <td class="product-image">
+                      <img [src]="article.images" [alt]="article.nom" class="img-fluid">
+                    </td>
+                    <td class="product-info">
+                      <h5 class="mb-1">{{ article.nom }}</h5>
+                      <div class="text-muted small">{{ article.categorie }}</div>
+                    </td>
+                    <td class="product-price">
+                      {{ article.prix | tunisianCurrency }}
+                    </td>
+                    <td class="product-availability">
+                      <div class="stock-indicator" [ngClass]="{'in-stock': article.stock > 5, 'low-stock': article.stock <= 5 && article.stock > 0, 'out-of-stock': article.stock <= 0}">
+                        <i class="bi" [ngClass]="{'bi-check-circle-fill': article.stock > 5, 'bi-exclamation-circle-fill': article.stock <= 5 && article.stock > 0, 'bi-x-circle-fill': article.stock <= 0}"></i>
+                        <span *ngIf="article.stock > 5">En stock</span>
+                        <span *ngIf="article.stock <= 5 && article.stock > 0">Stock limité ({{ article.stock }})</span>
+                        <span *ngIf="article.stock <= 0">Indisponible</span>
+                      </div>
+                    </td>
+                    <td class="product-actions">
+                      <button class="btn btn-sm btn-outline-primary me-2" [routerLink]="['/article', article.id]">
+                        <i class="bi bi-eye"></i> Détails
+                      </button>
+                      <button class="btn btn-sm btn-success me-2" [disabled]="article.stock <= 0" (click)="ajouterAuPanier(article)">
+                        <i class="bi bi-cart-plus"></i> Ajouter
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="retirerDesFavoris(article)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between mb-5">
+          <a routerLink="/liste" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i> Continuer mes achats
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

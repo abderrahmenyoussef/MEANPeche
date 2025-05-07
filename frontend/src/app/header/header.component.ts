@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, PLATFORM_ID } from '@angular/core';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { PanierService } from '../services/panier.service';
+import { FavorisService } from '../services/favoris.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -15,63 +16,98 @@ import { PanierService } from '../services/panier.service';
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
-  searchSubject = new Subject<string>();
   nombreArticles: number = 0;
-  private panierSubscription!: Subscription;
+  nombreFavoris: number = 0;
+  isAdmin: boolean = false;
+  private subscriptions: Subscription[] = [];
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
 
-  constructor(private router: Router, private panierService: PanierService) {}
+  constructor(
+    private router: Router,
+    private panierService: PanierService,
+    private favorisService: FavorisService,
+    private authService: AuthService
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit(): void {
-    // Configure la recherche dynamique avec un délai de 300ms pour éviter trop d'appels
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(term => {
-      this.performSearch(term);
-    });
-
-    // S'abonner aux changements du panier pour mettre à jour le compteur
-    this.panierSubscription = this.panierService.panier$.subscribe(() => {
+    // Subscribe to panier updates
+    const panierSubscription = this.panierService.panier$.subscribe(() => {
       this.nombreArticles = this.panierService.getNombreArticles();
-      console.log('Nombre d\'articles mis à jour:', this.nombreArticles);
     });
+    this.subscriptions.push(panierSubscription);
 
-    // Initialisation du compteur au démarrage
+    // Subscribe to favoris updates
+    const favorisSubscription = this.favorisService.favoris$.subscribe(favoris => {
+      this.nombreFavoris = favoris.length;
+    });
+    this.subscriptions.push(favorisSubscription);
+
+    // Subscribe to auth status
+    const authSubscription = this.authService.isAuthenticated$.subscribe(isAuthenticated => {
+      this.isAdmin = isAuthenticated;
+    });
+    this.subscriptions.push(authSubscription);
+
+    // Initialisation des compteurs au démarrage
     this.nombreArticles = this.panierService.getNombreArticles();
-    console.log('Nombre d\'articles initial:', this.nombreArticles);
+    this.nombreFavoris = this.favorisService.nombreArticles();
+
+    // Écouter les réinitialisations de recherche seulement si nous sommes dans un navigateur
+    if (this.isBrowser) {
+      window.addEventListener('reset-search', this.handleResetSearch.bind(this));
+    }
   }
 
   ngOnDestroy(): void {
-    // Se désabonner pour éviter les fuites mémoire
-    if (this.panierSubscription) {
-      this.panierSubscription.unsubscribe();
+    // Clean up all subscriptions
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+
+    // Nettoyer les event listeners seulement si nous sommes dans un navigateur
+    if (this.isBrowser) {
+      window.removeEventListener('reset-search', this.handleResetSearch.bind(this));
     }
+  }
+
+  handleResetSearch() {
+    this.searchTerm = '';
   }
 
   // Appelé à chaque frappe dans la barre de recherche
   onSearchInput(): void {
-    this.searchSubject.next(this.searchTerm);
-  }
-
-  // Effectue la recherche ou réinitialise si le terme est vide
-  performSearch(term: string): void {
-    if (this.router.url === '/liste') {
-      // On est déjà sur la page de liste, pas besoin de naviguer
-      // Émet un événement personnalisé pour que le composant gestion-article puisse y réagir
+    if (this.isBrowser) {
+      // Dispatch global search event à chaque frappe
       window.dispatchEvent(new CustomEvent('global-search', {
-        detail: { searchTerm: term }
+        detail: { searchTerm: this.searchTerm }
       }));
-    } else {
-      // On est sur une autre page, naviguer vers la liste avec le terme de recherche
-      this.router.navigate(['/liste'], {
-        queryParams: { search: term }
-      });
     }
   }
 
   // Gérer la soumission du formulaire de recherche
   onSearchSubmit(event: Event): void {
     event.preventDefault();
-    this.performSearch(this.searchTerm);
+    if (this.searchTerm.trim() && this.isBrowser) {
+      // Dispatch global search event
+      window.dispatchEvent(new CustomEvent('global-search', {
+        detail: { searchTerm: this.searchTerm }
+      }));
+    }
+  }
+
+  // Fonction pour gérer l'action sur l'icône utilisateur
+  goToProfile(): void {
+    if (this.isAdmin) {
+      this.router.navigate(['/admin']);
+    } else {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  // Fonction pour déconnexion
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/']);
   }
 }

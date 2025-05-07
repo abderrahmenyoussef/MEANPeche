@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, HostListener, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { ArticleService } from '../services/article.service';
 import { PanierService } from '../services/panier.service';
+import { FavorisService } from '../services/favoris.service';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TunisianCurrencyPipe } from '../pipes/tunisian-currency.pipe';
@@ -51,11 +52,17 @@ export class GestionArticleComponent implements OnInit, OnDestroy {
   private queryParamsSub?: Subscription;
   private globalSearchListener: any;
 
+  private platformId = inject(PLATFORM_ID);
+  private isBrowser: boolean;
+
   constructor(
     private articleService: ArticleService,
     private panierService: PanierService,
+    public favorisService: FavorisService, // Modifié de private à public pour être accessible dans le template
     private route: ActivatedRoute
-  ) { }
+  ) {
+    this.isBrowser = isPlatformBrowser(this.platformId);
+  }
 
   ngOnInit(): void {
     // Écouter les paramètres de requête URL (pour la recherche depuis d'autres pages)
@@ -65,14 +72,16 @@ export class GestionArticleComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Écouter les événements de recherche globale depuis le header
-    this.globalSearchListener = (event: any) => {
-      if (event.detail && event.detail.searchTerm !== undefined) {
-        this.searchTerm = event.detail.searchTerm;
-        this.applyFilters();
-      }
-    };
-    window.addEventListener('global-search', this.globalSearchListener);
+    // Écouter les événements de recherche globale depuis le header seulement si nous sommes dans un navigateur
+    if (this.isBrowser) {
+      this.globalSearchListener = (event: any) => {
+        if (event.detail && event.detail.searchTerm !== undefined) {
+          this.searchTerm = event.detail.searchTerm;
+          this.applyFilters();
+        }
+      };
+      window.addEventListener('global-search', this.globalSearchListener);
+    }
 
     this.loadArticles();
   }
@@ -83,7 +92,10 @@ export class GestionArticleComponent implements OnInit, OnDestroy {
       this.queryParamsSub.unsubscribe();
     }
 
-    window.removeEventListener('global-search', this.globalSearchListener);
+    // Nettoyer les event listeners seulement si nous sommes dans un navigateur
+    if (this.isBrowser && this.globalSearchListener) {
+      window.removeEventListener('global-search', this.globalSearchListener);
+    }
   }
 
   loadArticles(): void {
@@ -217,7 +229,10 @@ export class GestionArticleComponent implements OnInit, OnDestroy {
     this.sortOption = 'default';
     this.stockFilter = 'tous';
     // Réinitialiser également le champ de recherche dans le header via un événement
-    window.dispatchEvent(new CustomEvent('reset-search'));
+    // seulement si nous sommes dans un navigateur
+    if (this.isBrowser) {
+      window.dispatchEvent(new CustomEvent('reset-search'));
+    }
     this.applyFilters();
   }
 
@@ -277,21 +292,57 @@ export class GestionArticleComponent implements OnInit, OnDestroy {
     // Ajouter l'article au panier avec la quantité par défaut à 1
     this.panierService.ajouterArticle({...article, quantite: 1});
 
-    // Afficher une notification avec SweetAlert2
-    Swal.fire({
-      position: 'top-end',
-      icon: 'success',
-      title: 'Article ajouté au panier!',
-      text: `${article.nom} a été ajouté à votre panier`,
-      showConfirmButton: false,
-      timer: 1500,
-      toast: true
-    });
+    // Afficher une notification avec SweetAlert2 seulement si nous sommes dans un navigateur
+    if (this.isBrowser) {
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'Article ajouté au panier!',
+        text: `${article.nom} a été ajouté à votre panier`,
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true
+      });
+    }
   }
 
-  // Fonction pour ajouter aux favoris (à implémenter ultérieurement)
+  // Fonction pour ajouter aux favoris
   addToFavorites(article: any): void {
-    console.log(`Article ${article.nom} ajouté aux favoris`);
+    const isAlreadyInFavorites = this.favorisService.estEnFavoris(article.id);
+
+    if (isAlreadyInFavorites) {
+      // Si l'article est déjà dans les favoris, on le retire
+      this.favorisService.retirerDesFavoris(article.id);
+
+      // Afficher une notification seulement si nous sommes dans un navigateur
+      if (this.isBrowser) {
+        Swal.fire({
+          position: 'top-end',
+          icon: 'info',
+          title: 'Article retiré des favoris',
+          text: `${article.nom} a été retiré de vos favoris`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true
+        });
+      }
+    } else {
+      // Sinon, on l'ajoute aux favoris
+      this.favorisService.ajouterAuxFavoris(article);
+
+      // Afficher une notification seulement si nous sommes dans un navigateur
+      if (this.isBrowser) {
+        Swal.fire({
+          position: 'top-end',
+          icon: 'success',
+          title: 'Article ajouté aux favoris!',
+          text: `${article.nom} a été ajouté à vos favoris`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true
+        });
+      }
+    }
   }
 
   // Gestionnaire de clic en dehors des menus déroulants pour les fermer

@@ -37,11 +37,14 @@
       </form>
 
       <div class="nav-icons">
-        <a href="#" class="nav-icon">
-          <i class="bi bi-person"></i>
-        </a>
-        <a href="#" class="nav-icon">
+        <!-- Icône utilisateur modifiée avec menu déroulant pour admin -->
+        <div class="nav-icon" (click)="goToProfile()" style="cursor: pointer;">
+          <i class="bi" [ngClass]="isAdmin ? 'bi-person-check-fill' : 'bi-person'"></i>
+          <span *ngIf="isAdmin" class="badge bg-success position-absolute" style="font-size: 8px; top: -5px; right: -5px;">Admin</span>
+        </div>
+        <a routerLink="/favoris" class="nav-icon favoris-icon">
           <i class="bi bi-heart"></i>
+          <span class="favoris-count" *ngIf="nombreFavoris > 0">{{ nombreFavoris }}</span>
         </a>
         <a routerLink="/panier" class="nav-icon cart-icon">
           <i class="bi bi-cart3"></i>

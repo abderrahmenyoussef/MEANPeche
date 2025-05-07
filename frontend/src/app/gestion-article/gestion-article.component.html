@@ -118,8 +118,8 @@
         <div class="product-image">
           <img [src]="article.images" [alt]="article.nom" class="img-fluid">
           <div class="product-actions">
-            <button class="action-btn" title="Ajouter aux favoris" (click)="addToFavorites(article)">
-              <i class="bi bi-heart"></i>
+            <button class="action-btn" [ngClass]="{'favorite-active': favorisService.estEnFavoris(article.id)}" title="{{ favorisService.estEnFavoris(article.id) ? 'Retirer des favoris' : 'Ajouter aux favoris' }}" (click)="addToFavorites(article)">
+              <i class="bi" [ngClass]="favorisService.estEnFavoris(article.id) ? 'bi-heart-fill' : 'bi-heart'"></i>
             </button>
             <button class="action-btn view-details" title="Voir les détails" [routerLink]="['/article', article.id]">
               <i class="bi bi-eye"></i>
@@ -175,8 +175,8 @@
             <div class="product-list-actions">
               <div class="product-price mb-3">{{ article.prix | tunisianCurrency }}</div>
               <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-outline-secondary" title="Ajouter aux favoris" (click)="addToFavorites(article)">
-                  <i class="bi bi-heart"></i>
+                <button class="btn btn-sm" [ngClass]="favorisService.estEnFavoris(article.id) ? 'btn-danger' : 'btn-outline-secondary'" title="{{ favorisService.estEnFavoris(article.id) ? 'Retirer des favoris' : 'Ajouter aux favoris' }}" (click)="addToFavorites(article)">
+                  <i class="bi" [ngClass]="favorisService.estEnFavoris(article.id) ? 'bi-heart-fill' : 'bi-heart'"></i>
                 </button>
                 <button class="btn btn-sm btn-primary" title="Voir les détails" [routerLink]="['/article', article.id]">
                   <i class="bi bi-eye me-1"></i> Voir
